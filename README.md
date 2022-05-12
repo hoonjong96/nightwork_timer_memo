@@ -1,16 +1,26 @@
-# nightwork_timer_memo
+# It's an app that records overtime hours with a simple memo⏱
+---
 
-A new Flutter project.
+## 📀  Shorts Video
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+![gif_third](https://user-images.githubusercontent.com/97106032/168052306-ec49ef4e-62b4-49c4-ad4c-5efce4dbd889.gif)
 
-A few resources to get you started if this is your first Flutter project:
+---
+# <center>📱 About Project </center>
+## 📝 Short description
+- You can record your overtime work every day with short text.
+- The data is saved in a local space.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## ❗️ Notice and improvements
+- Unable to modify data.
+- Require overtime statistics by dividing units.
+- Need stateControler and CleanCode
+ 
+## ⛏️ Skills & Library
+- Dart
+- Flutter
+- Timer
+- Sharedpreferences
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
