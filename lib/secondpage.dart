@@ -6,11 +6,10 @@ import 'package:nightwork_timer_memo/bottom.dart';
 import 'package:nightwork_timer_memo/cardview.dart';
 import 'package:nightwork_timer_memo/main.dart';
 
-
 /** 2022-05-06 code design: jongdroid
  *  해당 페이지는 메인으로 부터 전달 받은 시간 데이터를 간단한 텍스트와 함께 저장한다.
  *  텍스트는 TextField를 통해 입력받는다.
- *  마찬가지로 입력받은 데이터를 '상세보기' 에 전달하여 카드뷰 형태로 출력한다.
+ *  ListView로 저장되는 모든 데이터를 '상세보기' 에 전달하여 카드뷰 형태로 출력한다.
  *  [개선사항] -> 일일 단위로 데이터를 자동으로 초기화 할 수 있도록 개선이 필요해보인다.
  */
 
@@ -32,16 +31,17 @@ class SaveTodayData extends StatelessWidget {
 
 class DetailWork extends StatefulWidget {
 
-  var getNowTime;
+  // 전달받은 데이터 (야근 시작 시간, 야근 종료 시간, 야근한 시간, 야근한 날짜)
+  var saveNowTime;
   var saveEndTime;
-  var sendWorkTime;
+  var saveWorkTime;
   var today_date;
 
   DetailWork(
       {Key? key,
-      this.getNowTime,
+      this.saveNowTime,
       this.saveEndTime,
-      this.sendWorkTime,
+      this.saveWorkTime,
       this.today_date})
       : super(key: key);
 
@@ -51,13 +51,23 @@ class DetailWork extends StatefulWidget {
 
 class _DetailWorkState extends State<DetailWork> {
 
-  var myList = <String>[]; // 날짜데이터
-  var sendWorkTimeList = <String>[];
-  var nowTimeList = <String>[];
+  // 야근 시간 저장한 날짜 저장 리스트
+  List<String> dateList = [];
+
+  // 야근한 시간을 저장하는 리스트
+  List<String> worktimeList = [];
+
+  // 야근 시간을 저장한 날짜의 시간 저장 리스트
+  // 예 - 23:58분에 저장했다면 해당 시간 기록
+  List<String> getNowtimeList = [];
+
+  // 야근 task 기록 text save list
+  List<String> titleList = <String>[];
+
   var nowTimeVar; // 현재 시간 저장 데이터
 
+  // TextField를 통해 입력 받은 텍스트 Controller
   var titleController = TextEditingController();
-  var titleList = <String>[];
 
   @override
   void initState() {
@@ -69,19 +79,19 @@ class _DetailWorkState extends State<DetailWork> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
-      myList = (prefs.getStringList("myList"))!;
-      prefs.setStringList("myList", myList);
+      dateList = (prefs.getStringList("myList"))!;
+      prefs.setStringList("myList", dateList);
 
-      sendWorkTimeList = (prefs.getStringList("worktimekey"))!;
-      prefs.setStringList("worktimekey", sendWorkTimeList);
+      worktimeList = (prefs.getStringList("worktimekey"))!;
+      prefs.setStringList("worktimekey", worktimeList);
 
-      nowTimeList = (prefs.getStringList("nowtimekey"))!;
-      prefs.setStringList("nowtimekey", nowTimeList);
+      getNowtimeList = (prefs.getStringList("nowtimekey"))!;
+      prefs.setStringList("nowtimekey", getNowtimeList);
 
       titleList = (prefs.getStringList("titlekey"))!;
       prefs.setStringList("titlekey", titleList);
 
-      print('$myList' + 'test임');
+      print('$dateList' + 'test임');
     });
   }
 
@@ -89,23 +99,18 @@ class _DetailWorkState extends State<DetailWork> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
+      dateList.add(today_date);
+      prefs.setStringList("myList", dateList);
 
+      worktimeList.add(saveWorkTime);
+      prefs.setStringList("worktimekey", worktimeList);
 
+      nowTimeVar = DateFormat('HH:mm:ss').format(DateTime.now());
+      getNowtimeList.add('${nowTimeVar}');
+      prefs.setStringList("nowtimekey", getNowtimeList);
 
-    myList.add(today_date);
-    prefs.setStringList("myList", myList);
-
-    sendWorkTimeList.add(sendWorkTime);
-    prefs.setStringList("worktimekey", sendWorkTimeList);
-
-    nowTimeVar = DateFormat('HH:mm:ss').format(DateTime.now());
-    nowTimeList.add('${nowTimeVar}');
-    prefs.setStringList("nowtimekey", nowTimeList);
-
-
-    titleList.add(titleController.text);
-    prefs.setStringList("titlekey", titleList);
-
+      titleList.add(titleController.text);
+      prefs.setStringList("titlekey", titleList);
     });
   }
 
@@ -157,7 +162,7 @@ class _DetailWorkState extends State<DetailWork> {
                             fontSize: 18),
                       ),
                       Text(
-                        '$getNowTime',
+                        '$saveNowTime',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 17),
                       ),
@@ -197,7 +202,7 @@ class _DetailWorkState extends State<DetailWork> {
                             fontSize: 18),
                       ),
                       Text(
-                        '$sendWorkTime',
+                        '$saveWorkTime',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 17),
                       ),
@@ -223,13 +228,10 @@ class _DetailWorkState extends State<DetailWork> {
                         style: TextStyle(fontSize: 18),
                       ),
                       onPressed: () {
-
                         // _incrementCounter();
                         showPerformanceDialog(context);
 
-                        setState(() {
-
-                        });
+                        setState(() {});
                       },
                     ),
                   ],
@@ -247,20 +249,17 @@ class _DetailWorkState extends State<DetailWork> {
                   width: 500.0,
                   color: Colors.grey,
                 ),
-
                 Container(
                     height: 250,
                     margin: EdgeInsets.all(5),
                     child: ListView.builder(
-                        itemCount: myList.length,
+                        itemCount: dateList.length,
                         itemBuilder: (context, int index) {
                           return ListTile(
                             title: Text('${titleList[index]}'),
-
                             subtitle: Text(
-
-                              '날짜-${myList[index]} ${nowTimeList[index]}'
-                              ' 야근시간- ${sendWorkTimeList[index]}',
+                              '날짜-${dateList[index]} ${getNowtimeList[index]}'
+                              ' 야근시간- ${worktimeList[index]}',
                               style: TextStyle(
                                   color: Colors.blue,
                                   fontSize: 14,
@@ -281,64 +280,55 @@ class _DetailWorkState extends State<DetailWork> {
   }
 
   void allReset() {
-    getNowTime = '0';
+    saveNowTime = '0';
     saveEndTime = '0';
-    sendWorkTime = '0';
+    saveWorkTime = '0';
   }
-
 
   Future<dynamic> showPerformanceDialog(BuildContext context) async {
-  return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('기록하기'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextField(
-                  decoration: InputDecoration(hintText: '무엇을 하셨나요?'),
-                  controller: titleController,
-                ),
-              ],
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('기록하기'),
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+                  TextField(
+                    decoration: InputDecoration(hintText: '무엇을 하셨나요?'),
+                    controller: titleController,
+                  ),
+                ],
+              ),
             ),
-          ),
-          actions: [
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                titleController.text = '';
-                Navigator.pop(context);
-              },
-            ),
-            ElevatedButton(
-              child: Text('Save'),
-              onPressed: () {
-                Navigator.pop(context);
-                _incrementCounter();
-                sendAllDataNextPage();
-                titleController.clear();
-                setState((){
-                });
-
-              },
-            ),
-          ],
-        );
-      });
-}
-
-
-
-
-   // 다음페이지로 데이터 전달
-  void sendAllDataNextPage() {
-
-    Navigator.pushNamed(context, '/CardViewScreen', arguments: today_date);
-    Navigator.pushNamed(context, '/CardViewScreen', arguments: sendWorkTime);
-    Navigator.pushNamed(context, '/CardViewScreen', arguments: nowTimeVar);
-    Navigator.pushNamed(context, '/CardViewScreen', arguments: titleController);
-
+            actions: [
+              TextButton(
+                child: Text('Cancel'),
+                onPressed: () {
+                  titleController.text = '';
+                  Navigator.pop(context);
+                },
+              ),
+              ElevatedButton(
+                child: Text('Save'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  _incrementCounter();
+                  sendAllDataNextPage();
+                  titleController.clear();
+                  setState(() {});
+                },
+              ),
+            ],
+          );
+        });
   }
 
+  // 다음페이지로 데이터 전달
+  void sendAllDataNextPage() {
+    Navigator.pushNamed(context, '/CardViewScreen', arguments: today_date);
+    Navigator.pushNamed(context, '/CardViewScreen', arguments: saveWorkTime);
+    Navigator.pushNamed(context, '/CardViewScreen', arguments: nowTimeVar);
+    Navigator.pushNamed(context, '/CardViewScreen', arguments: titleController);
+  }
 }
