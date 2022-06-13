@@ -73,10 +73,10 @@ class _DetailWorkState extends State<DetailWork> {
   @override
   void initState() {
     super.initState();
-    _loadCounter();
+    getDataList();
   }
 
-  _loadCounter() async {
+  getDataList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
@@ -94,7 +94,7 @@ class _DetailWorkState extends State<DetailWork> {
     });
   }
 
-  _incrementCounter() async {
+  setDataList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
@@ -227,9 +227,7 @@ class _DetailWorkState extends State<DetailWork> {
                         style: TextStyle(fontSize: 18),
                       ),
                       onPressed: () {
-                        // _incrementCounter();
                         showPerformanceDialog(context);
-
                         setState(() {});
                       },
                     ),
@@ -311,12 +309,12 @@ class _DetailWorkState extends State<DetailWork> {
               ElevatedButton(
                 child: Text('Save'),
                 onPressed: () {
-                  showSaveMessageToast();
                   Navigator.pop(context);
-                  _incrementCounter();
+                  showSaveMessageToast();
+                  setDataList();
                   sendAllDataNextPage();
                   titleController.clear();
-
+                  allReset();
                   setState(() {});
                 },
               ),
