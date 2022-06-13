@@ -17,9 +17,10 @@ void main() {
 }
 
 var today_date = DateFormat('yyyy.MM.dd').format(DateTime.now()); //오늘 날짜 저장 변수
-var showNowState = '대기중'; //현재 상태를 보여줌(야근 시작 / 중지)
+// 현재 상태를 표시하며  대기중, 야근중, 중지, 저장완료 4개의 상태를 저장하는 변수입니다.
+var showNowState = '대기중';
 
-// 다음페이지로 넘겨주는 데이터, 대기중은 초기값을 의미
+// 다음페이지로 넘겨주는 데이터, 데이터를 아직 받기전이므로 대기중 으로 초기화
 var saveNowTime = '대기중'; // 야근 시작 버튼 눌렀을때 시점의 시간 저장
 var saveWorkTime = '대기중'; // 야근한 시간 저장
 var saveEndTime = '대기중'; // 야근 종료한 시점의 시간을 저장
@@ -119,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     Text(
                       '시간',
-                      style: TextStyle(fontSize: 30, color: Colors.purple),
+                      style: TextStyle(fontSize: 30, color: Colors.black),
                     ),
                     Text(
                       '$min',
@@ -127,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     Text(
                       '분',
-                      style: TextStyle(fontSize: 30, color: Colors.purple),
+                      style: TextStyle(fontSize: 30, color: Colors.black),
                     ),
                     Text(
                       '$second',
@@ -135,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     Text(
                       '초',
-                      style: TextStyle(fontSize: 30, color: Colors.purple),
+                      style: TextStyle(fontSize: 30, color: Colors.black),
                     ),
                   ],
                 ),
@@ -144,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 '오늘도 힘내세요!',
                 style: TextStyle(
                     fontSize: 16,
-                    color: Colors.blueGrey,
+                    color: Colors.black54,
                     fontWeight: FontWeight.bold),
               ),
               Container(
@@ -162,23 +163,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(fontSize: 16),
                     ),
                     onPressed: () {
-                      saveNowTime = DateFormat('HH:mm').format(DateTime.now());  // 야근 시작 버튼을 눌렀을때 즉시 시간 기록(시:분만 저장)
-                      showNowState = "야근중"; // 현재 상태를 저장하는 변수
+                      saveNowTime = DateFormat('HH:mm').format(DateTime.now());  // 야근 시작 버튼을 눌렀을때 기준 시간 저장(시:분만 저장)
+                      showNowState = '야근중'; // 현재 상태를 저장하는 변수
                       startTimerBtn(); // 타이머 시작 함수 호출
-                      Navigator.pushNamed(context, '/DetailWork', // 다음 페이지로 위에서 저장한 야근 버튼 눌렀을때 시간 전달
-                          arguments: saveNowTime);
-                    },
+                      // 다음 페이지로 위에서 저장한 야근 버튼 눌렀을때 시간 전달
+                      Navigator.pushNamed(context, '/DetailWork',
+                          arguments: saveNowTime);},
                   ),
                   ElevatedButton(
                     child: Text(
                       '야근 중지',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                      style: TextStyle(fontSize: 16),),
                     onPressed: () {
-                      showNowState = "중지";
+                      showNowState = '중지';
                       timer.cancel();
-                      setState(() {});
-                    },
+                      setState(() {});},
                   ),
                   ElevatedButton(
                     child: Text(
@@ -186,11 +185,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(fontSize: 16),
                     ),
                     onPressed: () {
-                      showSaveMessageToast(); //저장 완료를 알림
-                      showNowState = "저장완료"; //저장 완료 상태임을 나타냄
-                      saveWorkTime = '${hour}시간 ${min}분'; // 타이머로 측정한 시간을 시간과 분만 저장함
+                      showSaveMessageToast(); //저장 완료 toast message
+                      showNowState = '저장완료'; //저장 완료 상태임을 나타냄
+                      saveWorkTime = '$hour시간 $min분'; // 타이머로 측정한 시간을 시간과 분만 저장함
                       saveEndTime = DateFormat('HH:mm').format(DateTime.now()); // 야근을 종료한 시간을 기록함
-                      resetTimerBtn(); // 타이머를 중단하고, 타이머 초기화
+                      resetTimerBtn(); // 타이머 초기화
 
                       // 다음페이지로 저장 버튼을 누른 당일의 날짜, 야근한 시간 데이터 전달
                       Navigator.pushNamed(context, '/DetailWork',
