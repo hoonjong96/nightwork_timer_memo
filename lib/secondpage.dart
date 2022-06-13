@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nightwork_timer_memo/bottom.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nightwork_timer_memo/cardview.dart';
 import 'package:nightwork_timer_memo/main.dart';
 
@@ -90,8 +91,6 @@ class _DetailWorkState extends State<DetailWork> {
 
       titleList = (prefs.getStringList("titlekey"))!;
       prefs.setStringList("titlekey", titleList);
-
-      print('$dateList' + 'test임');
     });
   }
 
@@ -295,7 +294,7 @@ class _DetailWorkState extends State<DetailWork> {
               child: Column(
                 children: [
                   TextField(
-                    decoration: InputDecoration(hintText: '무엇을 하셨나요?'),
+                    decoration: InputDecoration(hintText: '야근하는 동안 무엇을 하셨나요?'),
                     controller: titleController,
                   ),
                 ],
@@ -312,16 +311,29 @@ class _DetailWorkState extends State<DetailWork> {
               ElevatedButton(
                 child: Text('Save'),
                 onPressed: () {
+                  showSaveMessageToast();
                   Navigator.pop(context);
                   _incrementCounter();
                   sendAllDataNextPage();
                   titleController.clear();
+
                   setState(() {});
                 },
               ),
             ],
           );
         });
+  }
+
+  void showSaveMessageToast() {
+    Fluttertoast.showToast(
+      msg: '야근하시느라 고생하셨습니다!!',
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.grey,
+      fontSize: 20,
+      textColor: Colors.white,
+      toastLength: Toast.LENGTH_SHORT,
+    );
   }
 
   // 다음페이지로 데이터 전달
